@@ -35,7 +35,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB 
+  limits: { fileSize: 5 * 1024 *1024 }, // 5MB 
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png|gif|webp/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -200,7 +200,7 @@ app.post('/productos', auth, isAdmin, upload.single('imagen'), async (req, res) 
 app.put('/productos/:id', auth, isAdmin, upload.single('imagen'), async (req, res) => {
   try {
     const { id } = req.params;
-    let { nombre, precio, descripcion, tipo_producto, producto_oferta, stock } = req.body;
+    const { nombre, precio, descripcion, tipo_producto, producto_oferta, stock } = req.body;
     
     // Get current product
     const [products] = await pool.execute('SELECT imagen FROM productos WHERE id = ?', [id]);
@@ -224,7 +224,7 @@ app.put('/productos/:id', auth, isAdmin, upload.single('imagen'), async (req, re
     }
     
     // Update product
-    const [result] = await pool.execute(
+    await pool.execute(
       'UPDATE productos SET nombre = ?, precio = ?, descripcion = ?, tipo_producto = ?, producto_oferta = ?, imagen = ?, stock = ? WHERE id = ?',
       [nombre, precio, descripcion, tipo_producto, producto_oferta === 'true', imagen, stock, id]
     );
@@ -624,28 +624,6 @@ app.get('/compras/:id', auth, async (req, res) => {
     );
     
     res.json({ ...details[0], productos: items });
-  } catch (err) { handleError(res, err); }
-});
-
-// ADMIN ROUTES
-// Get all users (admin only)
-app.get('/admin/usuarios', auth, isAdmin, async (req, res) => {
-  try {
-    const [users] = await pool.execute(
-      'SELECT id, nombre, email, rol, created_at FROM usuarios'
-    );
-    res.json(users);
-  } catch (err) { handleError(res, err); }
-});
-
-// Get all purchases (admin only)
-app.get('/admin/compras', auth, isAdmin, async (req, res) => {
-  try {
-    const [purchases] = await pool.execute(
-      `SELECT c.id, c.usuario_id, c.total, c.created_at, u.nombre as usuario_nombre
-       FROM compras c JOIN usuarios u ON c.usuario_id = u.id ORDER BY c.created_at DESC`
-    );
-    res.json(purchases);
   } catch (err) { handleError(res, err); }
 });
 

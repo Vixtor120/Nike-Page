@@ -13,9 +13,7 @@
     </div>
     <div class="flex space-x-4 text-xs font-semibold">
         <ul class="flex space-x-4 text-xs font-semibold">
-            <li><a href="#" class="text-black">Buscar Tienda</a></li>
-            <p>|</p>
-            <li><a href="#" class="text-black">Ayuda</a></li>
+            <li><a routerLink="/perfil" class="text-black">Perfil</a></li>
             <p>|</p>
             <!-- Show these only when NOT logged in -->
             <ng-container *ngIf="!authService.isLoggedIn()">
@@ -74,9 +72,11 @@
         </div>
         <!-- Icono de bolsa de compra -->
         <div>
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px" fill="none">
-                <path stroke="currentColor" stroke-width="1.5" d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5"></path>
-            </svg>
+            <a routerLink="/carrito">
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px" fill="none">
+                    <path stroke="currentColor" stroke-width="1.5" d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5"></path>
+                </svg>
+            </a>
         </div>
     </div>
 </nav>

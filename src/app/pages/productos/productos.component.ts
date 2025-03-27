@@ -27,6 +27,7 @@ export class ProductosComponent implements OnInit {
   error: string | null = null;
   isAdmin = false;
   mensaje: string | null = null;
+  cartId: number | null = null;
   
   private apiUrl = 'http://localhost:3000/productos';
 
@@ -35,6 +36,7 @@ export class ProductosComponent implements OnInit {
   ngOnInit() {
     this.cargarProductos();
     this.verificarAdmin();
+    this.checkExistingCart();
   }
   
   private verificarAdmin() {
@@ -117,5 +119,68 @@ export class ProductosComponent implements OnInit {
     const serverBaseUrl = isDevelopment ? 'http://localhost:3000' : 'http://192.168.72.159';
     
     return `${serverBaseUrl}/${imagePath}`;
+  }
+  
+  private checkExistingCart() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    this.http.get<any>('http://localhost:3000/carritos/usuario', { headers }).subscribe({
+      next: (response) => {
+        if (response && response.id) {
+          this.cartId = response.id;
+        }
+      },
+      error: () => {
+        // Silently fail
+      }
+    });
+  }
+  
+  addToCart(productId: number) {
+    if (!productId) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.mostrarMensaje('Necesita iniciar sesión para añadir productos');
+      return;
+    }
+    
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    // Create cart if doesn't exist
+    if (!this.cartId) {
+      this.http.post<any>('http://localhost:3000/carritos', {}, { headers }).subscribe({
+        next: (response) => {
+          this.cartId = response.id;
+          this.addProductToCart(productId, headers);
+        },
+        error: () => {
+          this.mostrarMensaje('Error al crear carrito');
+        }
+      });
+    } else {
+      this.addProductToCart(productId, headers);
+    }
+  }
+  
+  private addProductToCart(productId: number, headers: HttpHeaders) {
+    this.http.post<any>(`http://localhost:3000/carritos/${this.cartId}/productos`, {
+      productoId: productId,
+      cantidad: 1
+    }, { headers }).subscribe({
+      next: () => {
+        this.mostrarMensaje('Producto añadido al carrito');
+      },
+      error: (err) => {
+        if (err.error && err.error.error === 'Not enough stock') {
+          this.mostrarMensaje('No hay suficiente stock disponible');
+        } else {
+          this.mostrarMensaje('Error al añadir al carrito');
+        }
+      }
+    });
   }
 }
