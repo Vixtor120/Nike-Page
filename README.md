@@ -1,59 +1,125 @@
-# NikePage20
+# Nike Page - Angular E-Commerce Project
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.5.
+A full-featured e-commerce application built with Angular and Node.js, showcasing Nike products with shopping cart functionality and user authentication.
 
-## Development server
+![Nike Page Screenshot](assets/screenshot.png)
 
-To start a local development server, run:
+## 🚀 Features
+
+- **Product Catalog**: Browse a complete catalog of Nike products with filtering options
+- **User Authentication**: Register and login to manage your account
+- **Shopping Cart System**: Add products to cart, adjust quantities, and checkout
+- **User Profiles**: View and update user information
+- **Admin Dashboard**: Manage products (add, edit, delete) with admin privileges
+- **Responsive Design**: Full mobile and desktop compatibility
+
+## 💻 Technology Stack
+
+- **Frontend**: Angular 19, TailwindCSS
+- **Backend**: Node.js, Express
+- **Database**: MySQL
+- **Authentication**: JWT (JSON Web Tokens)
+- **Image Storage**: Local file system with multer
+
+## 📋 Prerequisites
+
+- Node.js (v18+)
+- npm or yarn
+- MySQL database
+
+## 🔧 Installation & Setup
+
+### 1. Clone the repository
 
 ```bash
+git clone https://github.com/yourusername/nike-page.git
+cd nike-page
+```
+
+### 2. Install frontend dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure the database
+
+Create a MySQL database and run the SQL scripts found in `database/database.txt`.
+
+### 4. Configure the server
+
+Navigate to the database directory and install server dependencies:
+
+```bash
+cd database
+npm install
+```
+
+Edit the database connection in `server.js` to match your MySQL configuration.
+
+### 5. Start the development server
+
+From the project root:
+
+```bash
+# Start the backend server
+cd database
+node server.js
+
+# In another terminal, start the Angular development server
+cd ..
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The application will be available at `http://localhost:4200/`.
 
-## Code scaffolding
+## 🗄️ Database Structure
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The application uses MySQL with the following main tables:
+- **usuarios**: User data and authentication information
+- **productos**: Product catalog information
+- **carritos**: Shopping cart data
+- **carrito_productos**: Products in cart with quantities
+- **compras**: Completed purchase records
+- **compra_productos**: Products in completed purchases
 
-```bash
-ng generate component component-name
-```
+See the complete schema in `database/database.txt`.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 👤 Authentication & Authorization
 
-```bash
-ng generate --help
-```
+The application includes a complete authentication system:
+- User registration with password hashing
+- JWT-based authentication
+- Role-based access control (admin vs client)
+- Protected routes for authenticated users
 
-## Building
+## 📱 API Documentation
 
-To build the project run:
+### Product Endpoints
+- `GET /productos`: Fetch all products
+- `GET /productos/:id`: Fetch single product
+- `POST /productos`: Create product (admin only)
+- `PUT /productos/:id`: Update product (admin only)
+- `DELETE /productos/:id`: Delete product (admin only)
 
-```bash
-ng build
-```
+### Cart Endpoints
+- `POST /carritos`: Create a new cart
+- `GET /carritos/usuario`: Get user's active cart
+- `POST /carritos/:id/productos`: Add product to cart
+- `DELETE /carritos/:cartId/productos/:productId`: Remove product from cart
+- `POST /carritos/:id/checkout`: Complete purchase
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### User Endpoints
+- `POST /register`: Register new user
+- `POST /login`: User login
+- `GET /usuarios/perfil`: Get user profile
+- `PUT /usuarios/perfil`: Update user profile
+- `PUT /usuarios/password`: Change password
 
-## Running unit tests
+## 🤝 Contributing
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-```bash
-ng test
-```
+## 📄 License
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is licensed under the MIT License - see the LICENSE file for details.
