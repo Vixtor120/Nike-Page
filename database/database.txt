@@ -1,0 +1,91 @@
+Estructura de la base de datos
+
+Tabla productos:
+CREATE TABLE productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    descripcion TEXT NOT NULL,
+    tipo_producto VARCHAR(100) NOT NULL,
+    producto_oferta BOOLEAN NOT NULL DEFAULT FALSE,
+    imagen VARCHAR(255) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Tabla usuarios:
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('admin', 'cliente') NOT NULL DEFAULT 'cliente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Tabla carritos:
+CREATE TABLE carritos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+Tabla carrito_productos:
+CREATE TABLE carrito_productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    carrito_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (carrito_id) REFERENCES carritos(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);
+
+Tabla compras:
+CREATE TABLE compras (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+Tabla compra_productos:
+CREATE TABLE compra_productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    compra_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (compra_id) REFERENCES compras(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);
+
+Datos de ejemplo
+
+Insertar productos:
+INSERT INTO productos (nombre, precio, descripcion, tipo_producto, producto_oferta, imagen, stock) VALUES
+('Nike Air Max', 120.00, 'Zapatillas deportivas cómodas y modernas.', 'zapatillas', TRUE, 'imagen1.jpg', 50),
+('Nike Dunk', 100.00, 'Zapatillas clásicas con estilo retro.', 'zapatillas', FALSE, 'imagen2.jpg', 30);
+
+Insertar usuarios:
+INSERT INTO usuarios (nombre, email, password, rol) VALUES
+('Admin User', 'admin@example.com', 'hashed_password', 'admin'),
+('Cliente User', 'cliente@example.com', 'hashed_password', 'cliente');
+
+Insertar un carrito para un usuario:
+INSERT INTO carritos (usuario_id) VALUES (2); -- Usuario con ID 2 (cliente)
+
+Añadir productos al carrito:
+INSERT INTO carrito_productos (carrito_id, producto_id, cantidad) VALUES
+(1, 1, 2), -- 2 unidades del producto con ID 1 en el carrito con ID 1
+(1, 2, 1); -- 1 unidad del producto con ID 2 en el carrito con ID 1
+
+Registrar una compra:
+INSERT INTO compras (usuario_id, total) VALUES
+(2, 340.00); -- Usuario con ID 2 realiza una compra de 340€
+
+Añadir productos a la compra:
+INSERT INTO compra_productos (compra_id, producto_id, cantidad, precio_unitario) VALUES
+(1, 1, 2, 120.00), -- 2 unidades del producto con ID 1 a 120€ cada una
+(1, 2, 1, 100.00); -- 1 unidad del producto con ID 2 a 100€

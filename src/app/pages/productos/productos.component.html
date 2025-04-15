@@ -1,0 +1,128 @@
+<div class="min-h-screen bg-gray-50 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header section -->
+    <div class="mb-10 text-center">
+      <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+        Catálogo de Productos
+      </h1>
+      <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+        Descubre nuestra selección de calzado y ropa Nike
+      </p>
+    </div>
+    
+    <!-- Message notification -->
+    <div *ngIf="mensaje" class="fixed top-5 inset-x-0 flex items-center justify-center z-50 animate-fade-in">
+      <div class="bg-blue-600 text-white px-6 py-4 rounded-lg shadow-xl flex items-center space-x-3 max-w-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">{{ mensaje }}</span>
+      </div>
+    </div>
+    
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+      <svg class="animate-spin h-12 w-12 text-black mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="text-xl font-medium text-gray-600">Cargando productos...</p>
+    </div>
+    
+    <!-- Error state -->
+    <div *ngIf="error" class="text-center py-16">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <p class="text-xl font-medium text-red-600 mb-2">{{ error }}</p>
+      <p class="text-gray-500">Intenta recargar la página</p>
+    </div>
+    
+    <!-- No products state -->
+    <div *ngIf="!isLoading && !error && productos.length === 0" class="text-center py-16 bg-white rounded-lg shadow">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+      </svg>
+      <p class="text-2xl font-medium text-gray-700 mb-3">No hay productos disponibles</p>
+      <p *ngIf="isAdmin" class="mt-4">
+        <a routerLink="/formulario" class="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black hover:bg-gray-800 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Añadir producto
+        </a>
+      </p>
+    </div>
+    
+    <!-- Admin Actions -->
+    <div *ngIf="isAdmin && !isLoading && productos.length > 0" class="flex justify-center mb-8">
+      <a routerLink="/formulario" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+        <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Nuevo Producto
+      </a>
+    </div>
+    
+    <!-- Products grid -->
+    <div *ngIf="!isLoading && productos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div *ngFor="let p of productos" class="group bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:shadow-xl hover:-translate-y-1">
+        <!-- Admin buttons -->
+        <div *ngIf="isAdmin" class="absolute top-3 right-3 flex z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+          <a [routerLink]="['/formulario', p.id]" 
+             class="bg-white text-black p-2 rounded-full hover:bg-gray-100 mr-2 shadow-lg"
+             title="Editar producto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+          </a>
+          <button (click)="eliminar(p.id)" 
+                  class="bg-white text-red-600 p-2 rounded-full hover:bg-red-50 shadow-lg"
+                  title="Eliminar producto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Product image with hover effect -->
+        <div class="relative h-60 overflow-hidden bg-gray-200">
+          <img [src]="getImageUrl(p.imagen)" alt="{{ p.nombre }}" 
+               class="w-full h-full object-cover object-center transform transition duration-700 ease-in-out group-hover:scale-110"
+               onerror="this.src='assets/default-product.jpg'">
+          
+          <div *ngIf="p.producto_oferta" class="absolute top-0 left-0 m-3">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white">
+              OFERTA
+            </span>
+          </div>
+        </div>
+        
+        <div class="p-5">
+          <div class="flex justify-between items-start">
+            <h3 class="text-lg font-bold text-gray-900 line-clamp-1">{{ p.nombre }}</h3>
+            <p class="font-bold text-gray-900">{{ p.precio | currency:'EUR':'symbol':'1.2-2' }}</p>
+          </div>
+          
+          <p class="mt-1 text-sm text-gray-500 capitalize">{{ p.tipo_producto }}</p>
+          <p *ngIf="p.stock <= 10" class="mt-1 text-sm font-medium" [ngClass]="p.stock === 0 ? 'text-red-600' : 'text-amber-600'">
+            {{ p.stock === 0 ? 'Agotado' : 'Solo ' + p.stock + ' unidades' }}
+          </p>
+          <p class="mt-2 text-gray-600 text-sm line-clamp-2">{{ p.descripcion }}</p>
+          
+          <div class="mt-5">
+            <button (click)="addToCart(p.id)" 
+                    class="w-full flex items-center justify-center px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors rounded"
+                    [disabled]="p.stock === 0"
+                    [ngClass]="{'opacity-50 cursor-not-allowed': p.stock === 0}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              {{ p.stock === 0 ? 'Agotado' : 'Añadir al carrito' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
