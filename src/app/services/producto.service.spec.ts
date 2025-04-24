@@ -9,11 +9,11 @@ describe('ProductoService', () => {
     service = TestBed.inject(ProductoService);
   });
 
-  it('should be created', () => {
+  it('debería crearse', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should add a product to the list', () => {
+  it('debería añadir un producto a la lista', () => {
     const producto = {
       id: 1,
       nombre: 'Test Product',

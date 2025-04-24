@@ -24,23 +24,23 @@ describe('ProductosComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should create', () => {
+  it('debería crearse', () => {
     httpClientSpy.get.and.returnValue(of([]));
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
-  it('should load products on initialization', () => {
+  it('debería cargar los productos al inicializar', () => {
     httpClientSpy.get.and.returnValue(of([]));
     spyOn(component as any, 'cargarProductos').and.callThrough();
     fixture.detectChanges();
     expect((component as any).cargarProductos).toHaveBeenCalled();
   });
 
-  it('should display an error message if products fail to load', () => {
+  it('debería mostrar un mensaje de error si falla la carga de productos', () => {
     httpClientSpy.get.and.returnValue(throwError(() => new Error('Error al cargar')));
     fixture.detectChanges();
-    // Make sure the error property gets set properly in the component
+    // Asegúrate de que la propiedad de error se establezca correctamente en el componente
     expect(component.error).toBe('Error al cargar los productos');
   });
 });

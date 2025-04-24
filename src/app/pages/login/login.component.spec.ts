@@ -26,11 +26,11 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('debería crearse', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should login successfully with valid credentials', () => {
+  it('debería iniciar sesión correctamente con credenciales válidas', () => {
     // Explicitly type the mock response to match the LoginResponse interface
     const mockResponse: LoginResponse = {
       message: 'Login successful',
@@ -51,7 +51,7 @@ describe('LoginComponent', () => {
     expect(authService.login).toHaveBeenCalledWith({ email: 'admin@test.com', password: 'password123' });
   });
 
-  it('should show an error message for invalid credentials', () => {
+  it('debería mostrar un mensaje de error para credenciales inválidas', () => {
     authService.login.and.returnValue(throwError({ error: { error: 'Invalid credentials' } }));
 
     component.loginForm.setValue({ email: 'invalid@test.com', password: 'wrongpassword' });

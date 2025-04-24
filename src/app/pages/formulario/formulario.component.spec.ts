@@ -17,10 +17,10 @@ describe('FormularioComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    // Create spies for services
+    // Crear espías para los servicios
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['post', 'get', 'put']);
     
-    // Mock AuthService with admin privileges
+    // Mock AuthService con privilegios de administrador
     const currentUserSubject = new BehaviorSubject({
       id: 1,
       nombre: 'Admin User',
@@ -33,18 +33,18 @@ describe('FormularioComponent', () => {
       { currentUser: currentUserSubject.asObservable() }
     );
     
-    // Configure spy methods
+    // Configurar métodos de los espías
     authServiceSpy.isLoggedIn.and.returnValue(true);
     authServiceSpy.isAdmin.and.returnValue(true);
     authServiceSpy.getToken.and.returnValue('fake-token');
     
-    // Configure HTTP responses
-    // Ensure GET returns an empty array to satisfy .some()
+    // Configurar respuestas HTTP
+    // Asegurar que GET devuelva un array vacío para satisfacer .some()
     httpClientSpy.get.and.returnValue(of([])); 
     httpClientSpy.post.and.returnValue(of({ message: 'success' }));
     httpClientSpy.put.and.returnValue(of({ message: 'success' }));
     
-    // Create ParamMap mock
+    // Crear mock de ParamMap
     const paramMapMock = {
       get: jasmine.createSpy('get').and.returnValue(null),
       has: jasmine.createSpy('has').and.returnValue(false),
@@ -80,29 +80,29 @@ describe('FormularioComponent', () => {
     fixture = TestBed.createComponent(FormularioComponent);
     component = fixture.componentInstance;
     
-    // Mock localStorage for token (common requirement in auth scenarios)
+    // Mock localStorage para el token (requisito común en escenarios de autenticación)
     spyOn(localStorage, 'getItem').and.callFake((key) => {
       if (key === 'token') return 'fake-token';
       return null;
     });
     
-    // If cargarProducto exists and is called in ngOnInit, mock it to avoid side effects
+    // Si cargarProducto existe y se llama en ngOnInit, mockearlo para evitar efectos secundarios
     if (typeof component['cargarProducto'] === 'function') {
       spyOn<any>(component, 'cargarProducto').and.returnValue(of({}));
     }
     
-    // Run ngOnInit
+    // Ejecutar ngOnInit
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('debería crearse', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should submit a valid form', (done) => {
+  it('debería enviar un formulario válido', (done) => {
     httpClientSpy.post.and.returnValue(of({ message: 'success' }));
     
-    // Set valid form values
+    // Establecer valores válidos en el formulario
     component.formulario.setValue({
       nombre: 'Producto Test',
       precio: 100,
@@ -122,12 +122,12 @@ describe('FormularioComponent', () => {
     }, 100);
   });
 
-  it('should show an error message if the form submission fails', (done) => {
-    // Provide the exact error structure your component is expecting
+  it('debería mostrar un mensaje de error si el envío del formulario falla', (done) => {
+    // Proveer la estructura exacta del error que espera el componente
     const errorResponse = { error: 'Error al enviar' };
     httpClientSpy.post.and.returnValue(throwError(() => errorResponse));
     
-    // Set valid form values
+    // Establecer valores válidos en el formulario
     component.formulario.setValue({
       nombre: 'Producto Test',
       precio: 100,

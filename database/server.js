@@ -60,7 +60,7 @@ if (!isProduction) {
 
 // Database connection
 const pool = mysql.createPool({
-  host: '192.168.72.159', 
+  host: '192.168.41.129', 
   user: 'admin', 
   password: 'password', 
   database: 'nike',
