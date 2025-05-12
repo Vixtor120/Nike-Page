@@ -362,7 +362,7 @@ app.post('/carritos', auth, async (req, res) => {
   } catch (err) { handleError(res, err); }
 });
 
-// Get active cart
+// Get active cart - SPECIFIC ROUTE FIRST
 app.get('/carritos/usuario', auth, async (req, res) => {
   try {
     const [carts] = await pool.execute(
@@ -386,6 +386,94 @@ app.get('/carritos/usuario', auth, async (req, res) => {
       items,
       total: items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0)
     });
+  } catch (err) { handleError(res, err); }
+});
+
+// Update cart item quantity - PLACE BEFORE OTHER CART ITEM ROUTES
+app.put('/carritos/:cartId/productos/:productId', auth, async (req, res) => {
+  try {
+    const { cartId, productId } = req.params;
+    const { cantidad } = req.body;
+    
+    if (!cantidad || cantidad <= 0) {
+      return res.status(400).json({ error: 'Valid quantity required' });
+    }
+    
+    const conn = await pool.getConnection();
+    
+    try {
+      await conn.beginTransaction();
+      
+      // Verify cart ownership
+      const [carts] = await conn.execute(
+        'SELECT usuario_id FROM carritos WHERE id = ?', [cartId]
+      );
+      
+      if (carts.length === 0 || carts[0].usuario_id !== req.user.id) {
+        await conn.rollback();
+        return res.status(403).json({ error: 'Cart access denied' });
+      }
+      
+      // Get current quantity in cart
+      const [cartItems] = await conn.execute(
+        'SELECT cantidad FROM carrito_productos WHERE carrito_id = ? AND producto_id = ?',
+        [cartId, productId]
+      );
+      
+      if (cartItems.length === 0) {
+        await conn.rollback();
+        return res.status(404).json({ error: 'Product not in cart' });
+      }
+      
+      const currentQuantity = cartItems[0].cantidad;
+      const quantityDifference = cantidad - currentQuantity;
+      
+      // Check stock if increasing quantity
+      if (quantityDifference > 0) {
+        const [products] = await conn.execute(
+          'SELECT stock FROM productos WHERE id = ?', [productId]
+        );
+        
+        if (products.length === 0) {
+          await conn.rollback();
+          return res.status(404).json({ error: 'Product not found' });
+        }
+        
+        if (products[0].stock < quantityDifference) {
+          await conn.rollback();
+          return res.status(400).json({ 
+            error: 'Not enough stock', 
+            available: products[0].stock + currentQuantity 
+          });
+        }
+        
+        // Decrease stock
+        await conn.execute(
+          'UPDATE productos SET stock = stock - ? WHERE id = ?',
+          [quantityDifference, productId]
+        );
+      } else if (quantityDifference < 0) {
+        // Return items to stock
+        await conn.execute(
+          'UPDATE productos SET stock = stock + ? WHERE id = ?',
+          [Math.abs(quantityDifference), productId]
+        );
+      }
+      
+      // Update cart item quantity
+      await conn.execute(
+        'UPDATE carrito_productos SET cantidad = ? WHERE carrito_id = ? AND producto_id = ?',
+        [cantidad, cartId, productId]
+      );
+      
+      await conn.commit();
+      res.json({ message: 'Cart item updated' });
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
   } catch (err) { handleError(res, err); }
 });
 
